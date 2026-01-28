@@ -12,6 +12,57 @@ A production-grade FastAPI service for ingesting and managing WhatsApp-like webh
 - **Structured Logging**: JSON logs for easy parsing
 - **Idempotency**: Duplicate message handling via DB constraints
 
+## 🌐 Live Deployment
+
+### Base URL (Production)
+
+```
+https://fastapi-webhook-service-n2he.onrender.com
+```
+
+### 🔗 Deployed API Endpoints
+
+| Feature | Endpoint |
+|---------|----------|
+| Webhook Ingestion | `POST /webhook` |
+| List Messages | `GET /messages` |
+| Message Statistics | `GET /stats` |
+| Prometheus Metrics | `GET /metrics` |
+
+### 🔗 Full URLs
+
+- `https://fastapi-webhook-service-n2he.onrender.com/webhook`
+- `https://fastapi-webhook-service-n2he.onrender.com/messages`
+- `https://fastapi-webhook-service-n2he.onrender.com/stats`
+- `https://fastapi-webhook-service-n2he.onrender.com/metrics`
+
+### Base URL (Local)
+
+```
+http://localhost:8000
+```
+
+### Local Endpoints
+
+- `http://localhost:8000/webhook`
+- `http://localhost:8000/messages`
+- `http://localhost:8000/stats`
+- `http://localhost:8000/metrics`
+
+## 🐳 Docker Hub Image
+
+### Repository
+
+```
+https://hub.docker.com/repository/docker/rbprince/fastapi-webhook-service/general
+```
+
+### Pull Image
+
+```bash
+docker pull rbprince/fastapi-webhook-service
+```
+
 ## Quick Start
 
 ### Prerequisites
@@ -22,31 +73,35 @@ A production-grade FastAPI service for ingesting and managing WhatsApp-like webh
 ### Running the Service
 
 1. **Set environment variables** (optional, defaults provided):
-   ```bash
-   export WEBHOOK_SECRET=mysecretkey
-   export LOG_LEVEL=INFO
-   ```
+
+```bash
+export WEBHOOK_SECRET=mysecretkey
+export LOG_LEVEL=INFO
+```
 
 2. **Start the service**:
-   ```bash
-   make up
-   # or
-   docker compose up -d --build
-   ```
+
+```bash
+make up
+# or
+docker compose up -d --build
+```
 
 3. **View logs**:
-   ```bash
-   make logs
-   # or
-   docker compose logs -f api
-   ```
+
+```bash
+make logs
+# or
+docker compose logs -f api
+```
 
 4. **Stop the service**:
-   ```bash
-   make down
-   # or
-   docker compose down -v
-   ```
+
+```bash
+make down
+# or
+docker compose down -v
+```
 
 ## API Endpoints
 
@@ -55,6 +110,7 @@ A production-grade FastAPI service for ingesting and managing WhatsApp-like webh
 Ingest inbound messages with signature verification.
 
 **Request**:
+
 ```bash
 # Compute signature
 BODY='{"message_id":"m1","from":"+919876543210","to":"+14155550100","ts":"2025-01-15T10:00:00Z","text":"Hello"}'
@@ -67,11 +123,13 @@ curl -X POST http://localhost:8000/webhook \
 ```
 
 **Response**:
+
 ```json
 {"status": "ok"}
 ```
 
 **Status Codes**:
+
 - `200`: Success (created or duplicate)
 - `401`: Invalid signature
 - `422`: Validation error
@@ -81,6 +139,7 @@ curl -X POST http://localhost:8000/webhook \
 List messages with pagination and filtering.
 
 **Query Parameters**:
+
 - `limit` (int): Results per page (default: 50, min: 1, max: 100)
 - `offset` (int): Pagination offset (default: 0)
 - `from` (string): Filter by sender (exact match)
@@ -88,6 +147,7 @@ List messages with pagination and filtering.
 - `q` (string): Search text (case-insensitive substring)
 
 **Examples**:
+
 ```bash
 # Basic listing
 curl http://localhost:8000/messages
@@ -106,6 +166,7 @@ curl "http://localhost:8000/messages?q=hello"
 ```
 
 **Response**:
+
 ```json
 {
   "data": [
@@ -128,11 +189,13 @@ curl "http://localhost:8000/messages?q=hello"
 Get message statistics and analytics.
 
 **Example**:
+
 ```bash
 curl http://localhost:8000/stats
 ```
 
 **Response**:
+
 ```json
 {
   "total_messages": 123,
@@ -163,6 +226,7 @@ curl http://localhost:8000/health/ready
 ```
 
 **Status Codes**:
+
 - `200`: Service is ready
 - `503`: Service not ready (missing config or DB issue)
 
@@ -175,6 +239,7 @@ curl http://localhost:8000/metrics
 ```
 
 **Metrics Included**:
+
 - `http_requests_total{path,status}`: Total HTTP requests by path and status
 - `webhook_requests_total{result}`: Webhook outcomes (created, duplicate, invalid_signature, validation_error)
 - `request_latency_ms`: Request latency summary with quantiles
@@ -282,31 +347,7 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ## Setup Used
 
 This project was developed using:
+
 - **VSCode** as the primary IDE
 - **GitHub Copilot** for code completion and suggestions
 - **Occasional ChatGPT prompts** for design decisions and documentation
-
-## Troubleshooting
-
-### Service won't start
-
-- Check that `WEBHOOK_SECRET` is set: `docker compose logs api`
-- Verify database directory permissions: `ls -la data/`
-
-### Signature verification fails
-
-- Ensure you're using raw body bytes for signature computation
-- Verify the secret matches between client and server
-- Check that signature is lowercase hex string
-
-### Tests fail
-
-- Ensure test database is writable: `mkdir -p data && chmod 777 data`
-- Check that `WEBHOOK_SECRET` is set in test environment
-- Run with verbose output: `pytest tests/ -vv`
-
-## License
-
-MIT
-#   f a s t a p i - w e b h o o k - s e r v i c e  
- 
